@@ -28,9 +28,10 @@ namespace Midnight
             IWebElement userName = driver.FindElement(By.CssSelector("input[name='username']"));
             IWebElement password = driver.FindElement(By.CssSelector("input[name='password']"));
             IWebElement enter = driver.FindElement(By.XPath("//*[@id='loginForm']/div/div[3]/button"));
-            string userToFollow = "manuelavacag";
-            userName.SendKeys(//"crimetmk");
-                /*"feli20gutierrez");//*/"midnightbyantonia_");
+            string userToFollow = "trazzo_joyeria";
+            string userNameString = //"crimetmk";
+                /*"feli20gutierrez";//*/"midnightbyantonia_";
+            userName.SendKeys(userNameString);
             password.SendKeys(//"VKCN0Zh_x35DoLz");
                 /*"+svzYvm<LrZs#24");//"*/"OliviaBlas2023");
             enter.Click();
@@ -48,7 +49,6 @@ namespace Midnight
             body.SendKeys(Keys.Control + "t");
             //driver.SwitchTo().Window(driver.WindowHandles.Last());
             driver.SwitchTo().NewWindow(WindowType.Tab);
-            driver.Navigate().GoToUrl("http://www.instagram.com/" + userToFollow + "/followers");
 
             IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
             String hover = "var evObj = document.createEvent('MouseEvents');" +
@@ -58,118 +58,248 @@ namespace Midnight
             string hide = "arguments[0].style.visibility='hidden'";
             string scroll = "arguments[0].scrollIntoView()";
 
-            Thread.Sleep(5000);
-
             Actions action = new Actions(driver);
-
             Hashtable prevIter = new Hashtable();
 
-            int whileIter = 0;
-            string h = "";
-            Thread.Sleep(500);
-            while (whileIter < 500)
-            {
-                Console.WriteLine("While iteration number: {0}", whileIter);
-                List<IWebElement> users = driver.FindElements(By.XPath("//*[@class='x1rg5ohu']")).ToList();
-                Hashtable currentIter = new Hashtable();
-                Thread.Sleep(1000);
-                string temp = "";
-                for (int i = 0; i < users.Count; ++i)
-                {
-                    var childrenK = users[i].FindElement(By.XPath("./child::*"));
-                    childrenK = childrenK.FindElement(By.XPath("./child::*"));
-                    temp = childrenK.GetAttribute("href");
-                    currentIter.Add(temp, users[i]);
-                }
-                if (users.Count == 0) 
-                {
-                    Console.WriteLine("No users, searching by Following or Requested text!");
-                    users = driver.FindElements(By.XPath("//*[text()='Following' or text()='Requested']")).ToList();
-                    if (users.Count > 0)
-                    {
-                        jsExecutor.ExecuteScript(scroll, users[users.Count - 1]);
-                        continue;
-                    }
-                    Console.WriteLine("No users breaking!");
-                    break;
-                }
-                //var childrenK = users[users.Count - 1].FindElement(By.XPath("./child::*"));
-                //childrenK = childrenK.FindElement(By.XPath("./child::*"));
-                //Thread.Sleep(200);
-                
-                Console.WriteLine("h: {0}, temp: {1}", h, temp);
+            bool unfollow = true;
 
-                foreach (DictionaryEntry entry in prevIter)
+            if (unfollow)
+            {
+                driver.Navigate().GoToUrl("http://www.instagram.com/" + userNameString + "/following");
+                
+                Thread.Sleep(5000);
+
+                int whileIter = 0;
+                string h = "";
+                Thread.Sleep(500);
+                while (whileIter < 5000)
                 {
-                    //Console.WriteLine("current: {0}, prev: {1}", currentIter[i], prevIter[i]);
-                    if (currentIter.ContainsKey(entry.Key))
+                    Console.WriteLine("While iteration number: {0}", whileIter);
+                    List<IWebElement> users = driver.FindElements(By.XPath("//*[@class='x1rg5ohu']")).ToList();
+                    Hashtable currentIter = new Hashtable();
+                    Thread.Sleep(1000);
+                    string temp = "";
+                    for (int i = 0; i < users.Count; ++i)
                     {
-                        Console.WriteLine("Value: {0} already exists, popping!", entry.Key);
-                        currentIter.Remove(entry.Key);
+                        var childrenK = users[i].FindElement(By.XPath("./child::*"));
+                        childrenK = childrenK.FindElement(By.XPath("./child::*"));
+                        temp = childrenK.GetAttribute("href");
+                        currentIter.Add(temp, users[i]);
                     }
-                }
-                Console.WriteLine("Users' count: {0}", currentIter.Count);
-                if (h != temp)
-                {
-                    Console.WriteLine("Inside!");
+                    if (users.Count == 0)
+                    {
+                        Console.WriteLine("No users, searching by Following or Requested text!");
+                        users = driver.FindElements(By.XPath("//*[text()='Following' or text()='Requested']")).ToList();
+                        if (users.Count > 0)
+                        {
+                            jsExecutor.ExecuteScript(scroll, users[users.Count - 1]);
+                            continue;
+                        }
+                        Console.WriteLine("No users breaking!");
+                        break;
+                    }
+
+                    Console.WriteLine("h: {0}, temp: {1}", h, temp);
+
+                    foreach (DictionaryEntry entry in prevIter)
+                    {
+                        //Console.WriteLine("current: {0}, prev: {1}", currentIter[i], prevIter[i]);
+                        if (currentIter.ContainsKey(entry.Key))
+                        {
+                            Console.WriteLine("Value: {0} already exists, popping!", entry.Key);
+                            currentIter.Remove(entry.Key);
+                        }
+                    }
+                    Console.WriteLine("Users' count: {0}", currentIter.Count);
+                    if (currentIter.Count == 0)
+                    {
+                        break;
+                    }
+                    if (h != temp)
+                    {
+                        Console.WriteLine("Inside!");
+                        foreach (DictionaryEntry entry in currentIter)
+                        {
+                            IWebElement user = (IWebElement)entry.Value;
+                            Thread.Sleep(500);
+
+                            driver.FindElement(By.CssSelector("body")).SendKeys(Keys.Control + "t");
+                            driver.SwitchTo().NewWindow(WindowType.Tab);
+                            driver.Navigate().GoToUrl((string)entry.Key + "following");
+                            string[] splitUserString = ((string)entry.Key).Split('/');
+                            //for (int i = 0; i < splitUserString.Length; ++i)
+                            //{
+                            //    Console.WriteLine("Iter: {0}= {1}", i, splitUserString[i]);
+                            //}
+                            string tempUserString = splitUserString[3];
+                            Thread.Sleep(5000);
+
+                            var followingCurrent = driver.FindElements(By.XPath("//*[text()='" + userNameString + "']"));
+                            Thread.Sleep(1000);
+                            if (followingCurrent.Count > 0)
+                            {
+                                Console.WriteLine("User: {1} Following current account: {0}", userNameString, tempUserString);
+                            }
+                            else
+                            {
+                                Console.WriteLine("User: {1} Not Following current account: {0}", userNameString, tempUserString);
+                                var close = driver.FindElement(By.XPath("//*[@aria-label='Close']"), 5, displayed: true);
+                                Thread.Sleep(300);
+                                close.Click();
+                                var followingCurrentUser = driver.FindElement(By.XPath("//*[text()='Following']"), 5, displayed: true);
+                                var followingCurrentUserMeta = followingCurrentUser.FindElement(By.XPath(".."), 5, displayed: true);
+                                followingCurrentUserMeta = followingCurrentUser.FindElement(By.XPath(".."), 5, displayed: true);
+                                followingCurrentUserMeta = followingCurrentUser.FindElement(By.XPath(".."), 5, displayed: true);
+                                followingCurrentUserMeta.Click();
+                                Thread.Sleep(500);
+                                var unfollowUser = driver.FindElement(By.XPath("//*[text()='Unfollow']"), 5, displayed: true);
+                                unfollowUser.Click();
+                                Thread.Sleep(1000);
+                            }
+
+                            Thread.Sleep(2000);
+
+                            driver.SwitchTo().Window(driver.WindowHandles[2]).Close();
+                            driver.SwitchTo().Window(driver.WindowHandles[1]);
+
+                            jsExecutor.ExecuteScript(scroll, user);
+                            Thread.Sleep(100);
+                        }
+                    }
+                    //jsExecutor.ExecuteScript(scroll, users[users.Count - 1]);
+                    h = temp;
                     foreach (DictionaryEntry entry in currentIter)
                     {
-                        IWebElement user = (IWebElement)entry.Value;
-                        Thread.Sleep(500);
-                        IWebElement metaUser = user.FindElement(By.XPath(".."), 5, displayed: true);
-                        for (int i = 0; i < 4; ++i)
+                        if (!prevIter.ContainsKey(entry.Key))
                         {
-                            metaUser = metaUser.FindElement(By.XPath(".."), 5, displayed: true);
+                            prevIter.Add(entry.Key, entry.Value);
                         }
-                        //Thread.Sleep(1000);
-                        //Console.WriteLine("Meta class name: {0}", metaUser.GetAttribute("class"));
-                        var childElements = metaUser.FindElements(By.XPath(/*"//*[text()='Follow']"));//*/".//*"));
-                        //Console.WriteLine("Number of child elements: {0}", childElements.Count);
-                        if (childElements.Count > 20)
-                        {
-                            IWebElement following = childElements[20];
-                            Console.WriteLine("Follows status: {0}", following.Text);
-                            if (following.Text == "Follow")
-                            {
-                                //Thread.Sleep(1000);
-                                var children = user.FindElement(By.XPath("./child::*"));
-                                children = children.FindElement(By.XPath("./child::*"));
-                                Thread.Sleep(200);
-                                string link = children.GetAttribute("href");
-                                Console.WriteLine("Link: {0}", link);
-                                driver.FindElement(By.CssSelector("body")).SendKeys(Keys.Control + "t");
-                                driver.SwitchTo().NewWindow(WindowType.Tab);
-                                driver.Navigate().GoToUrl(link);
-
-                                if (ShouldFollow(driver))
-                                {
-                                    IWebElement followInside = driver.FindElement(By.XPath("//*[text()='Follow' or text()='Requested' or text()='Following']"), 5, displayed: true);
-                                    if (followInside.Text == "Follow")
-                                    {
-                                        //Thread.Sleep(500);
-                                        //Console.WriteLine("Follow!");
-                                        followInside.Click();
-                                    }
-                                    Thread.Sleep(2000);
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Dont follow!");
-                                    Thread.Sleep(1000);
-                                }
-                                driver.SwitchTo().Window(driver.WindowHandles[2]).Close();
-                                driver.SwitchTo().Window(driver.WindowHandles[1]);
-                            }
-                        }
-                        jsExecutor.ExecuteScript(scroll, user);
-                        Thread.Sleep(100);
                     }
+                    whileIter++;
+                    Thread.Sleep(3000);
                 }
-                //jsExecutor.ExecuteScript(scroll, users[users.Count - 1]);
-                h = temp;
-                prevIter = currentIter;
-                whileIter++;
-                Thread.Sleep(3000);
+
+            }
+            else
+            {
+                driver.Navigate().GoToUrl("http://www.instagram.com/" + userToFollow + "/followers");
+
+                Thread.Sleep(5000);
+
+                int whileIter = 0;
+                string h = "";
+                Thread.Sleep(500);
+                while (whileIter < 500)
+                {
+                    Console.WriteLine("While iteration number: {0}", whileIter);
+                    List<IWebElement> users = driver.FindElements(By.XPath("//*[@class='x1rg5ohu']")).ToList();
+                    Hashtable currentIter = new Hashtable();
+                    Thread.Sleep(1000);
+                    string temp = "";
+                    for (int i = 0; i < users.Count; ++i)
+                    {
+                        var childrenK = users[i].FindElement(By.XPath("./child::*"));
+                        childrenK = childrenK.FindElement(By.XPath("./child::*"));
+                        temp = childrenK.GetAttribute("href");
+                        currentIter.Add(temp, users[i]);
+                    }
+                    if (users.Count == 0)
+                    {
+                        Console.WriteLine("No users, searching by Following or Requested text!");
+                        users = driver.FindElements(By.XPath("//*[text()='Following' or text()='Requested']")).ToList();
+                        if (users.Count > 0)
+                        {
+                            jsExecutor.ExecuteScript(scroll, users[users.Count - 1]);
+                            continue;
+                        }
+                        Console.WriteLine("No users breaking!");
+                        break;
+                    }
+
+                    Console.WriteLine("h: {0}, temp: {1}", h, temp);
+
+                    foreach (DictionaryEntry entry in prevIter)
+                    {
+                        //Console.WriteLine("current: {0}, prev: {1}", currentIter[i], prevIter[i]);
+                        if (currentIter.ContainsKey(entry.Key))
+                        {
+                            Console.WriteLine("Value: {0} already exists, popping!", entry.Key);
+                            currentIter.Remove(entry.Key);
+                        }
+                    }
+                    Console.WriteLine("Users' count: {0}", currentIter.Count);
+                    if (currentIter.Count == 0)
+                    {
+                        break;
+                    }
+                    if (h != temp)
+                    {
+                        Console.WriteLine("Inside!");
+                        foreach (DictionaryEntry entry in currentIter)
+                        {
+                            IWebElement user = (IWebElement)entry.Value;
+                            Thread.Sleep(500);
+                            IWebElement metaUser = user.FindElement(By.XPath(".."), 5, displayed: true);
+                            for (int i = 0; i < 4; ++i)
+                            {
+                                metaUser = metaUser.FindElement(By.XPath(".."), 5, displayed: true);
+                            }
+                            //Thread.Sleep(1000);
+                            //Console.WriteLine("Meta class name: {0}", metaUser.GetAttribute("class"));
+                            var childElements = metaUser.FindElements(By.XPath(".//*"));
+                            //Console.WriteLine("Number of child elements: {0}", childElements.Count);
+                            if (childElements.Count > 20)
+                            {
+                                IWebElement following = childElements[20];
+                                Console.WriteLine("Follows status: {0}", following.Text);
+                                if (following.Text == "Follow")
+                                {
+                                    //Thread.Sleep(1000);
+                                    var children = user.FindElement(By.XPath("./child::*"));
+                                    children = children.FindElement(By.XPath("./child::*"));
+                                    Thread.Sleep(200);
+                                    string link = children.GetAttribute("href");
+                                    Console.WriteLine("Link: {0}", link);
+                                    driver.FindElement(By.CssSelector("body")).SendKeys(Keys.Control + "t");
+                                    driver.SwitchTo().NewWindow(WindowType.Tab);
+                                    driver.Navigate().GoToUrl(link);
+
+                                    if (ShouldFollow(driver))
+                                    {
+                                        IWebElement followInside = driver.FindElement(By.XPath("//*[text()='Follow' or text()='Requested' or text()='Following']"), 5, displayed: true);
+                                        if (followInside.Text == "Follow")
+                                        {
+                                            //Thread.Sleep(500);
+                                            //Console.WriteLine("Follow!");
+                                            followInside.Click();
+                                        }
+                                        Thread.Sleep(2000);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Dont follow!");
+                                        Thread.Sleep(1000);
+                                    }
+                                    driver.SwitchTo().Window(driver.WindowHandles[2]).Close();
+                                    driver.SwitchTo().Window(driver.WindowHandles[1]);
+                                }
+                            }
+                            jsExecutor.ExecuteScript(scroll, user);
+                            Thread.Sleep(100);
+                        }
+                    }
+                    //jsExecutor.ExecuteScript(scroll, users[users.Count - 1]);
+                    h = temp;
+                    foreach (DictionaryEntry entry in currentIter)
+                    {
+                        if (!prevIter.ContainsKey(entry.Key))
+                        {
+                            prevIter.Add(entry.Key, entry.Value);
+                        }
+                    }
+                    whileIter++;
+                    Thread.Sleep(3000);
+                }
             }
 
 
@@ -252,7 +382,7 @@ namespace Midnight
         {
             Thread.Sleep(2000);
             var findElements = driver.FindElements(By.XPath("//*[@class='_aa_u']"));//"//*[text()='This Account is Private']"));
-            
+            Thread.Sleep(500);
             if (findElements.Count == 0)
             {
                 Console.WriteLine("Not private!");
@@ -261,8 +391,14 @@ namespace Midnight
 
             IWebElement isPrivate = findElements[0];
 
-            Console.WriteLine("Text: {0}", isPrivate.Text);
-
+            try
+            {
+                Console.WriteLine("Text: {0}", isPrivate.Text);
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
             string pathFollowers = "//*[text()=' followers']";
             //Console.WriteLine("href path: {0}", pathFollowers);
             IWebElement follows = driver.FindElement(By.XPath(pathFollowers), 5, displayed: true);
